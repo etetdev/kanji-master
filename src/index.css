@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+/* ===== CATPPUCCIN MOCHA (Dark) ===== */
+:root,
+[data-theme="dark"] {
+  --ctp-rosewater: #f5e0dc;
+  --ctp-flamingo: #f2cdcd;
+  --ctp-pink: #f5c2e7;
+  --ctp-mauve: #cba6f7;
+  --ctp-red: #f38ba8;
+  --ctp-maroon: #eba0ac;
+  --ctp-peach: #fab387;
+  --ctp-yellow: #f9e2af;
+  --ctp-green: #a6e3a1;
+  --ctp-teal: #94e2d5;
+  --ctp-sky: #89dceb;
+  --ctp-sapphire: #74c7ec;
+  --ctp-blue: #89b4fa;
+  --ctp-lavender: #b4befe;
+  --ctp-text: #cdd6f4;
+  --ctp-subtext1: #bac2de;
+  --ctp-subtext0: #a6adc8;
+  --ctp-overlay2: #9399b2;
+  --ctp-overlay1: #7f849c;
+  --ctp-overlay0: #6c7086;
+  --ctp-surface2: #585b70;
+  --ctp-surface1: #45475a;
+  --ctp-surface0: #313244;
+  --ctp-base: #1e1e2e;
+  --ctp-mantle: #181825;
+  --ctp-crust: #11111b;
+
+  --color-bg-primary: var(--ctp-base);
+  --color-bg-secondary: var(--ctp-mantle);
+  --color-bg-tertiary: var(--ctp-surface0);
+  --color-bg-card: var(--ctp-surface0);
+  --color-bg-card-hover: var(--ctp-surface1);
+
+  --color-accent: var(--ctp-lavender);
+  --color-accent-light: #c8cdff;
+  --color-accent-dim: #9399cc;
+  --color-accent-glow: rgba(180, 190, 254, 0.15);
+
+  --color-success: var(--ctp-green);
+  --color-success-dim: #7dc49a;
+  --color-error: var(--ctp-red);
+  --color-error-dim: #d16d87;
+  --color-warning: var(--ctp-yellow);
+  --color-mauve: var(--ctp-mauve);
+
+  --color-text-primary: var(--ctp-text);
+  --color-text-secondary: var(--ctp-subtext1);
+  --color-text-tertiary: var(--ctp-overlay1);
+  --color-border: var(--ctp-surface1);
+  --color-border-light: var(--ctp-surface2);
+
+  color-scheme: dark;
+}
+
+/* ===== CATPPUCCIN LATTE (Light) ===== */
+[data-theme="light"] {
+  --ctp-rosewater: #dc8a78;
+  --ctp-flamingo: #dd7878;
+  --ctp-pink: #ea76cb;
+  --ctp-mauve: #8839ef;
+  --ctp-red: #d20f39;
+  --ctp-maroon: #e64553;
+  --ctp-peach: #fe640b;
+  --ctp-yellow: #df8e1d;
+  --ctp-green: #40a02b;
+  --ctp-teal: #179299;
+  --ctp-sky: #04a5e5;
+  --ctp-sapphire: #209fb5;
+  --ctp-blue: #1e66f5;
+  --ctp-lavender: #7287fd;
+  --ctp-text: #4c4f69;
+  --ctp-subtext1: #5c5f77;
+  --ctp-subtext0: #6c6f85;
+  --ctp-overlay2: #7c7f93;
+  --ctp-overlay1: #8c8fa1;
+  --ctp-overlay0: #9ca0b0;
+  --ctp-surface2: #acb0be;
+  --ctp-surface1: #bcc0cc;
+  --ctp-surface0: #ccd0da;
+  --ctp-base: #eff1f5;
+  --ctp-mantle: #e6e9ef;
+  --ctp-crust: #dce0e8;
+
+  --color-bg-primary: var(--ctp-base);
+  --color-bg-secondary: var(--ctp-mantle);
+  --color-bg-tertiary: var(--ctp-surface0);
+  --color-bg-card: var(--ctp-surface0);
+  --color-bg-card-hover: var(--ctp-surface1);
+
+  --color-accent: var(--ctp-lavender);
+  --color-accent-light: #5a70e0;
+  --color-accent-dim: #8c9bdd;
+  --color-accent-glow: rgba(114, 135, 253, 0.15);
+
+  --color-success: var(--ctp-green);
+  --color-success-dim: #359123;
+  --color-error: var(--ctp-red);
+  --color-error-dim: #b00d30;
+  --color-warning: var(--ctp-yellow);
+  --color-mauve: var(--ctp-mauve);
+
+  --color-text-primary: var(--ctp-text);
+  --color-text-secondary: var(--ctp-subtext1);
+  --color-text-tertiary: var(--ctp-overlay1);
+  --color-border: var(--ctp-surface1);
+  --color-border-light: var(--ctp-surface2);
+
+  color-scheme: light;
+}
+
+@theme {
+  --font-sans: 'Noto Sans JP', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-jp: 'Noto Sans JP', sans-serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: 'Noto Sans JP', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--ctp-surface2);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ctp-overlay0);
+  }
+}
+
+/* Kanji character styling */
+.kanji-display {
+  font-family: 'Noto Sans JP', serif;
+  font-weight: 700;
+}
+
+/* Glow animations */
+@keyframes glow-success {
+  0%, 100% { box-shadow: 0 0 10px rgba(166, 227, 161, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(166, 227, 161, 0.5); }
+}
+@keyframes glow-error {
+  0%, 100% { box-shadow: 0 0 10px rgba(243, 139, 168, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(243, 139, 168, 0.5); }
+}
+.glow-success { animation: glow-success 1s ease-in-out; }
+.glow-error { animation: glow-error 1s ease-in-out; }
+
+/* Input focus */
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-accent), 0 0 15px var(--color-accent-glow);
+}
+
+/* Safe area for iPhone notch/home indicator */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Mobile touch improvements */
+@media (hover: none) {
+  button, a, [role="button"] {
+    cursor: default;
+  }
+}
