@@ -4,8 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  // Relative paths — works on GitHub Pages and custom domains
-  base: './',
+  // For GitHub Pages at https://etetdev.github.io/kanji-master/
+  // Change to '/' if using a custom domain
+  base: '/kanji-master/',
   build: {
     target: 'es2020',
     minify: 'terser',
