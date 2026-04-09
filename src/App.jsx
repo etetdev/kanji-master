@@ -8,6 +8,8 @@ import QuizScreen from './components/QuizScreen';
 import ResultsScreen from './components/ResultsScreen';
 import ProgressScreen from './components/ProgressScreen';
 import Header from './components/Header';
+import GrammarScreen from './components/GrammarScreen';
+import GrammarQuiz from './components/GrammarQuiz';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
@@ -15,6 +17,7 @@ function App() {
   const [currentView, setCurrentView] = useState('home');
   const [quizConfig, setQuizConfig] = useState(null);
   const [quizResults, setQuizResults] = useState(null);
+  const [grammarTheme, setGrammarTheme] = useState(null);
 
   const handleFileImport = useCallback(async (files) => {
     const newData = { ...weeksData };
@@ -51,6 +54,7 @@ function App() {
     setCurrentView('home');
     setQuizConfig(null);
     setQuizResults(null);
+    setGrammarTheme(null);
   }, []);
 
   const handleClearData = useCallback(() => {
@@ -70,6 +74,7 @@ function App() {
         theme={theme}
         onToggleTheme={toggleTheme}
         onShowProgress={() => setCurrentView('progress')}
+        onShowGrammar={() => setCurrentView('grammar')}
       />
 
       <main className="flex-1 flex flex-col safe-area-bottom">
@@ -108,6 +113,22 @@ function App() {
               key="progress"
               weeksData={weeksData}
               onBack={handleBackToHome}
+            />
+          )}
+          {currentView === 'grammar' && (
+            <GrammarScreen
+              key="grammar"
+              onStartGrammarQuiz={(theme) => {
+                setGrammarTheme(theme);
+                setCurrentView('grammar-quiz');
+              }}
+            />
+          )}
+          {currentView === 'grammar-quiz' && grammarTheme && (
+            <GrammarQuiz
+              key="grammar-quiz"
+              theme={grammarTheme}
+              onBack={() => setCurrentView('grammar')}
             />
           )}
         </AnimatePresence>

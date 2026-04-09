@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export default function Header({ hasData, onClearData, currentView, onBack, theme, onToggleTheme, onShowProgress }) {
+export default function Header({ hasData, onClearData, currentView, onBack, theme, onToggleTheme, onShowProgress, onShowGrammar }) {
   return (
     <header className="sticky top-0 z-50 border-b border-(--color-border)/50 backdrop-blur-xl bg-(--color-bg-primary)/80 safe-area-top">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -40,8 +40,20 @@ export default function Header({ hasData, onClearData, currentView, onBack, them
               animate={{ opacity: 1 }}
               className="text-xs font-medium text-(--color-accent) bg-(--color-accent)/10 px-3 py-1 rounded-full"
             >
-              {currentView === 'quiz' ? 'Quiz' : currentView === 'results' ? 'Résultats' : 'Progression'}
+              {currentView === 'quiz' ? 'Quiz' : currentView === 'results' ? 'Résultats' : currentView === 'grammar' ? 'Grammaire' : currentView === 'grammar-quiz' ? 'Quiz Grammaire' : 'Progression'}
             </motion.span>
+          )}
+
+          {/* Grammar button */}
+          {(currentView === 'home' || currentView === 'progress') && (
+            <button
+              onClick={onShowGrammar}
+              className="px-3 py-1.5 mr-2 bg-(--color-accent)/10 rounded-lg hover:bg-(--color-accent)/20 text-(--color-accent) transition-colors cursor-pointer font-bold tracking-tight text-sm flex items-center gap-1.5"
+              title="S'entraîner à la grammaire"
+            >
+              <span>Grammaire</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+            </button>
           )}
 
           {/* Progress button */}
