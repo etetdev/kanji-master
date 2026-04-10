@@ -8,17 +8,25 @@ export default function GrammarQuiz({ theme, onBack }) {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [inputValue, setInputValue] = useState('');
-  const [status, setStatus] = useState('idle'); // idle | correct | incorrect
+  
+  // idle -> en cours de réponse
+  // success -> bonne réponse trouvée
+  // revealed -> a abandonné et vu la réponse
+  const [status, setStatus] = useState('idle'); 
+  const [isError, setIsError] = useState(false);
+  const [hasRevealed, setHasRevealed] = useState(false);
+  const [mistakes, setMistakes] = useState(0);
+
   const [stats, setStats] = useState({ correct: 0, wrong: 0 });
   const [isFinished, setIsFinished] = useState(false);
   
   const inputRef = useRef(null);
 
   useEffect(() => {
-    setQuestions(generateGrammarQuiz(theme, 10)); // Generate 10 questions per quiz
+    setQuestions(generateGrammarQuiz(theme, 15)); // Génère 15 questions
   }, [theme]);
 
-  // Focus input on mount and question change
+  // Focus input
   useEffect(() => {
     if (status === 'idle' && inputRef.current && !isFinished) {
       inputRef.current.focus();
@@ -30,7 +38,7 @@ export default function GrammarQuiz({ theme, onBack }) {
   const currentQ = questions[currentIndex];
 
   const handleInputChange = (e) => {
-    // Autoconvert romaji to kana (IMEs work too because wanakana ignores already converted kana)
+    setIsError(false); // Retirer l'erreur rouge dès qu'on tape
     const converted = wanakana.toKana(e.target.value, { IMEMode: true });
     setInputValue(converted);
   };
@@ -38,24 +46,28 @@ export default function GrammarQuiz({ theme, onBack }) {
   const checkAnswer = () => {
     if (!inputValue.trim()) return;
 
-    // Clean up input spaces or stuff
     const cInput = inputValue.trim();
-    // For grammar we expect exact kana matches, we let the user make errors
-    
-    // In some cases the expected answer might have kanji (like noun+desu etc. wait, expected is mostly kana/kanji from answerBase)
-    // Actually expected from grammarDb is purely string (mostly hiragana + maybe some kanji if base had kanji not modified, wait, in grammarDb logic we used answerBase which strips kanjis mostly OR keeps them. Let's check: answerBase is purely kana! Ah, wait, for Irregular Suru `べんきょうする`, it is kana. For Adjectives `たかい` it is kana. So answerBase was pure kana. That means we expect purely kana input!)
-    // Wait, some inputs might be typed in Kanji by native keyboards!
-    // So if the user types Kanji, it could fail if expected is Kana. We should probably allow either, but since we prompt with wanakana.toKana (which produces hiragana), mostly they will do hiragana.
-    // If they use IME, they might convert to Kanji. To be safe, let's compare both: if input equals expected OR if input in kana equals expected.
-    // Actually, wanakana doesn't convert Kanji back to Kana without API. We will instruct them to type in Hiragana.
-    
-    if (cInput === currentQ.expected || cInput === currentQ.expected.replace(/\s/g, '')) {
-      setStatus('correct');
-      setStats(prev => ({ ...prev, correct: prev.correct + 1 }));
+    const isCorrect = cInput === currentQ.expected || cInput === currentQ.expected.replace(/\s/g, '');
+
+    if (isCorrect) {
+      setStatus('success');
+      if (!hasRevealed) {
+        setStats(prev => ({ ...prev, correct: prev.correct + 1 }));
+      }
     } else {
-      setStatus('incorrect');
-      setStats(prev => ({ ...prev, wrong: prev.wrong + 1 }));
+      // Mauvaise réponse
+      setIsError(true);
+      setMistakes(m => m + 1);
+      
+      // Remove the shake class and re-add it to restart animation if needed
+      setTimeout(() => setIsError(false), 500); 
     }
+  };
+
+  const revealAnswer = () => {
+    setStatus('revealed');
+    setHasRevealed(true);
+    setStats(prev => ({ ...prev, wrong: prev.wrong + 1 }));
   };
 
   const handleKeyDown = (e) => {
@@ -73,6 +85,9 @@ export default function GrammarQuiz({ theme, onBack }) {
       setCurrentIndex(prev => prev + 1);
       setInputValue('');
       setStatus('idle');
+      setIsError(false);
+      setHasRevealed(false);
+      setMistakes(0);
     } else {
       setIsFinished(true);
     }
@@ -85,11 +100,11 @@ export default function GrammarQuiz({ theme, onBack }) {
         <div className="flex gap-8 mb-8">
           <div className="text-(--color-success)">
             <div className="text-4xl font-bold">{stats.correct}</div>
-            <div className="text-sm">Corrects</div>
+            <div className="text-sm">Trouvés</div>
           </div>
           <div className="text-(--color-error)">
             <div className="text-4xl font-bold">{stats.wrong}</div>
-            <div className="text-sm">Erreurs</div>
+            <div className="text-sm">Révélés</div>
           </div>
         </div>
         <button
@@ -129,11 +144,20 @@ export default function GrammarQuiz({ theme, onBack }) {
           </div>
         )}
 
-        <div className="text-5xl font-bold text-(--color-text-primary) mb-8 kanji-display">
+        <div className="text-5xl font-bold text-(--color-text-primary) mb-2 kanji-display">
           <FuriganaText text={currentQ.questionFull} />
         </div>
+        {currentQ.fr && (
+          <div className="text-sm text-(--color-text-tertiary) mb-8 font-medium italic">
+            "{currentQ.fr}"
+          </div>
+        )}
 
-        <div className="relative max-w-sm mx-auto">
+        <motion.div 
+          className="relative max-w-sm mx-auto"
+          animate={{ x: isError ? [-10, 10, -10, 10, 0] : 0 }}
+          transition={{ duration: 0.4 }}
+        >
           <input
             ref={inputRef}
             type="text"
@@ -143,40 +167,66 @@ export default function GrammarQuiz({ theme, onBack }) {
             disabled={status !== 'idle'}
             placeholder="Tapez la réponse en hiragana..."
             className={`
-              w-full px-4 py-4 rounded-xl text-center text-xl font-bold bg-(--color-bg-tertiary) border-2 transition-colors
+              w-full px-4 py-4 rounded-xl text-center text-xl font-bold border-2 transition-colors
               focus:outline-none
-              ${status === 'idle' ? 'border-(--color-border) focus:border-(--color-accent)' : ''}
-              ${status === 'correct' ? 'border-(--color-success) bg-(--color-success)/10 text-(--color-success)' : ''}
-              ${status === 'incorrect' ? 'border-(--color-error) bg-(--color-error)/10 text-(--color-error)' : ''}
+              ${status === 'idle' ? 'bg-(--color-bg-tertiary) border-(--color-border) focus:border-(--color-accent)' : ''}
+              ${status === 'success' ? 'border-(--color-success) bg-(--color-success)/10 text-(--color-success)' : ''}
+              ${status === 'revealed' ? 'border-(--color-error) bg-(--color-error)/10 text-(--color-error)' : ''}
+              ${isError ? 'border-[var(--color-error)] bg-[var(--color-error)]/10 text-[var(--color-error)]' : ''}
             `}
           />
           <div className="text-xs text-(--color-text-tertiary) mt-2 opacity-60 flex items-center justify-center gap-1">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            Saisie en romaji convertie automatiquement en hiragana
+            Saisie en romaji convertie automatiquement
           </div>
-        </div>
+        </motion.div>
 
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
+           {status === 'idle' && mistakes > 0 && (
+             <motion.div
+               key="reveal"
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0 }}
+               className="mt-6"
+             >
+               <p className="text-(--color-error) mb-3 text-sm font-semibold">Réponse incorrecte, réessayez !</p>
+               <button
+                 onClick={revealAnswer}
+                 className="text-sm font-medium text-(--color-text-tertiary) hover:text-(--color-error) transition-colors underline underline-offset-4 cursor-pointer"
+               >
+                 Je donne ma langue au chat (Révéler la réponse)
+               </button>
+             </motion.div>
+           )}
+
           {status !== 'idle' && (
             <motion.div
+              key="continue"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               className="mt-6"
             >
-              {status === 'incorrect' && (
+              {status === 'revealed' && (
                 <div className="mb-4 text-(--color-error)">
                   La bonne réponse était :{' '}
                   <span className="font-bold text-xl kanji-display ml-2">
-                    <FuriganaText text={currentQ.answerDisplay} />
+                     <FuriganaText text={currentQ.answerDisplay} />
                   </span>
+                </div>
+              )}
+              {status === 'success' && (
+                <div className="mb-4 text-(--color-success) font-bold flex items-center justify-center gap-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Bonne réponse !
                 </div>
               )}
               <button
                 onClick={handleNext}
                 autoFocus
                 className={`
-                  w-full py-4 rounded-xl font-bold text-lg text-white shadow-lg transition-all
-                  ${status === 'correct' 
+                  w-full py-4 rounded-xl font-bold text-lg text-white shadow-lg transition-all cursor-pointer
+                  ${status === 'success' 
                     ? 'bg-(--color-success) hover:bg-(--color-success-dim) shadow-(--color-success)/20' 
                     : 'bg-(--color-error) hover:bg-(--color-error-dim) shadow-(--color-error)/20'}
                 `}
